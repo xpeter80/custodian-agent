@@ -1,89 +1,182 @@
 // Mock data for the Asset Custody Intelligent Agent System
-// Based on the Bosera Fund clearing instruction images provided
+
+// ===== Instruction Templates =====
+export const instructionTemplates = {
+    ipo_subscription: {
+        name: { zh: '网下IPO申购划款', en: 'Offline IPO Subscription Payment' },
+        fields: [
+            { key: 'fundName', label: { zh: '基金名称', en: 'Fund Name' }, type: 'text' },
+            { key: 'instructionNo', label: { zh: '指令编号', en: 'Instruction No.' }, type: 'text' },
+            { key: 'subscriptionPrice', label: { zh: '申购价格', en: 'Subscription Price' }, type: 'currency' },
+            { key: 'subscriptionQty', label: { zh: '申购数量', en: 'Subscription Qty' }, type: 'number' },
+            { key: 'amount', label: { zh: '划款金额', en: 'Transfer Amount' }, type: 'currency' },
+            { key: 'amountCN', label: { zh: '大写金额', en: 'Amount (Words)' }, type: 'text' },
+            { key: 'payee', label: { zh: '收款单位', en: 'Payee' }, type: 'text' },
+            { key: 'payeeBank', label: { zh: '开户银行', en: 'Payee Bank' }, type: 'text' },
+            { key: 'account', label: { zh: '账号', en: 'Account No.' }, type: 'text' },
+            { key: 'purpose', label: { zh: '划款用途', en: 'Transfer Purpose' }, type: 'text' },
+            { key: 'deadline', label: { zh: '最迟到账时间', en: 'Latest Arrival Time' }, type: 'date' },
+        ]
+    },
+    custody_fee: {
+        name: { zh: '托管费划款', en: 'Custody Fee Payment' },
+        fields: [
+            { key: 'fundName', label: { zh: '基金名称', en: 'Fund Name' }, type: 'text' },
+            { key: 'instructionNo', label: { zh: '指令编号', en: 'Instruction No.' }, type: 'text' },
+            { key: 'amount', label: { zh: '划款金额', en: 'Transfer Amount' }, type: 'currency' },
+            { key: 'amountCN', label: { zh: '大写金额', en: 'Amount (Words)' }, type: 'text' },
+            { key: 'feeType', label: { zh: '费用类型', en: 'Fee Type' }, type: 'text' },
+            { key: 'feePeriod', label: { zh: '计费期间', en: 'Billing Period' }, type: 'text' },
+            { key: 'payee', label: { zh: '收款单位', en: 'Payee' }, type: 'text' },
+            { key: 'payeeBank', label: { zh: '开户银行', en: 'Payee Bank' }, type: 'text' },
+            { key: 'account', label: { zh: '账号', en: 'Account No.' }, type: 'text' },
+            { key: 'deadline', label: { zh: '最迟到账时间', en: 'Latest Arrival Time' }, type: 'date' },
+        ]
+    },
+    interbank_settlement: {
+        name: { zh: '银行间成交单', en: 'Interbank Settlement' },
+        fields: [
+            { key: 'direction', label: { zh: '交易方向', en: 'Trade Direction' }, type: 'text' },
+            { key: 'product', label: { zh: '交易品种', en: 'Product' }, type: 'text' },
+            { key: 'amount', label: { zh: '成交金额', en: 'Settlement Amount' }, type: 'currency' },
+            { key: 'price', label: { zh: '成交价格', en: 'Settlement Price' }, type: 'currency' },
+            { key: 'quantity', label: { zh: '成交数量', en: 'Quantity' }, type: 'number' },
+            { key: 'settlementDate', label: { zh: '结算日期', en: 'Settlement Date' }, type: 'date' },
+            { key: 'counterparty', label: { zh: '对手方', en: 'Counterparty' }, type: 'text' },
+            { key: 'deliveryMethod', label: { zh: '交割方式', en: 'Delivery Method' }, type: 'text' },
+        ]
+    },
+    redemption: {
+        name: { zh: '赎回划款', en: 'Redemption Payment' },
+        fields: [
+            { key: 'fundName', label: { zh: '基金名称', en: 'Fund Name' }, type: 'text' },
+            { key: 'instructionNo', label: { zh: '指令编号', en: 'Instruction No.' }, type: 'text' },
+            { key: 'amount', label: { zh: '划款金额', en: 'Transfer Amount' }, type: 'currency' },
+            { key: 'amountCN', label: { zh: '大写金额', en: 'Amount (Words)' }, type: 'text' },
+            { key: 'payee', label: { zh: '收款单位', en: 'Payee' }, type: 'text' },
+            { key: 'payeeBank', label: { zh: '开户银行', en: 'Payee Bank' }, type: 'text' },
+            { key: 'account', label: { zh: '账号', en: 'Account No.' }, type: 'text' },
+            { key: 'purpose', label: { zh: '划款用途', en: 'Transfer Purpose' }, type: 'text' },
+            { key: 'deadline', label: { zh: '最迟到账时间', en: 'Latest Arrival Time' }, type: 'date' },
+        ]
+    },
+    dividend: {
+        name: { zh: '分红划款', en: 'Dividend Payment' },
+        fields: [
+            { key: 'fundName', label: { zh: '基金名称', en: 'Fund Name' }, type: 'text' },
+            { key: 'instructionNo', label: { zh: '指令编号', en: 'Instruction No.' }, type: 'text' },
+            { key: 'amount', label: { zh: '分红金额', en: 'Dividend Amount' }, type: 'currency' },
+            { key: 'amountCN', label: { zh: '大写金额', en: 'Amount (Words)' }, type: 'text' },
+            { key: 'dividendDate', label: { zh: '分红日期', en: 'Dividend Date' }, type: 'date' },
+            { key: 'payee', label: { zh: '收款单位', en: 'Payee' }, type: 'text' },
+            { key: 'account', label: { zh: '账号', en: 'Account No.' }, type: 'text' },
+            { key: 'deadline', label: { zh: '最迟到账时间', en: 'Latest Arrival Time' }, type: 'date' },
+        ]
+    },
+}
 
 // ===== Module 1: Clearing Instructions =====
 export const sampleInstructions = [
     {
         id: 'INS-2024-001',
-        fundName: { zh: '博时策略混合', en: 'Bosera Strategy Mixed' },
-        instructionNo: '2011年88号',
-        date: '2011-12-06',
-        businessType: 'subscription',
-        payee: { zh: '中国证券登记结算有限责任公司上海分公司（网下发行专户）', en: 'CSDC Shanghai Branch (Offline IPO Account)' },
-        payeeBank: { zh: '中国建设银行股份有限公司上海市分行营业部', en: 'CCB Shanghai Branch Business Dept' },
-        account: '31001550400050015290',
-        amount: 140000000.00,
-        amountCN: { zh: '壹亿肆仟万元整', en: 'One Hundred Forty Million Yuan' },
-        purpose: 'D890775821601336',
-        deadline: '2011-12-07',
-        subscriptionPrice: 28.00,
-        subscriptionQty: 5000000,
-        subscriptionAmount: 140000000.00,
+        filename: '2-网下IPO资料-申购划款指令.jpg',
+        businessType: 'ipo_subscription',
+        businessTypeName: { zh: '网下IPO申购划款', en: 'Offline IPO Subscription' },
         confidence: 96.8,
         status: 'completed',
-        sortedTo: 'subscription'
+        recognizedFields: {
+            fundName: { zh: '博时策略混合', en: 'Bosera Strategy Mixed' },
+            instructionNo: '2011年88号',
+            subscriptionPrice: '28.00',
+            subscriptionQty: '5,000,000',
+            amount: '140,000,000.00',
+            amountCN: { zh: '壹亿肆仟万元整', en: 'One Hundred Forty Million Yuan' },
+            payee: { zh: '中国证券登记结算有限责任公司上海分公司（网下发行专户）', en: 'CSDC Shanghai Branch (Offline IPO Account)' },
+            payeeBank: { zh: '中国建设银行股份有限公司上海市分行营业部', en: 'CCB Shanghai Branch Business Dept' },
+            account: '31001550400050015290',
+            purpose: 'D890775821601336',
+            deadline: '2011-12-07',
+        }
     },
     {
         id: 'INS-2024-002',
-        fundName: { zh: '博时价值增长', en: 'Bosera Value Growth' },
-        instructionNo: '2024年156号',
-        date: '2024-03-15',
-        businessType: 'redemption',
-        payee: { zh: '博时基金管理有限公司', en: 'Bosera Fund Management Co., Ltd' },
-        payeeBank: { zh: '招商银行股份有限公司深圳分行', en: 'China Merchants Bank Shenzhen Branch' },
-        account: '755936020910001',
-        amount: 52800000.00,
-        amountCN: { zh: '伍仟贰佰捌拾万元整', en: 'Fifty-two Million Eight Hundred Thousand Yuan' },
-        purpose: 'R20240315001',
-        deadline: '2024-03-16',
-        subscriptionPrice: null,
-        subscriptionQty: null,
-        subscriptionAmount: null,
+        filename: '汇丰晋信托管费划款指令.tif',
+        businessType: 'custody_fee',
+        businessTypeName: { zh: '托管费划款', en: 'Custody Fee Payment' },
         confidence: 94.2,
-        status: 'processing',
-        sortedTo: 'redemption'
+        status: 'completed',
+        recognizedFields: {
+            fundName: { zh: '汇丰晋信动态策略混合', en: 'HSBC Jintrust Dynamic Strategy Mixed' },
+            instructionNo: '2024年045号',
+            amount: '356,800.00',
+            amountCN: { zh: '叁拾伍万陆仟捌佰元整', en: 'Three Hundred Fifty-Six Thousand Eight Hundred Yuan' },
+            feeType: { zh: '托管费', en: 'Custody Fee' },
+            feePeriod: '2024-01 ~ 2024-03',
+            payee: { zh: '汇丰晋信基金管理有限公司', en: 'HSBC Jintrust Fund Management Co.' },
+            payeeBank: { zh: '汇丰银行（中国）有限公司上海分行', en: 'HSBC Bank (China) Shanghai Branch' },
+            account: '621088010000287956',
+            deadline: '2024-03-31',
+        }
     },
     {
         id: 'INS-2024-003',
-        fundName: { zh: '华夏回报混合A', en: 'ChinaAMC Return Mixed A' },
-        instructionNo: '2024年203号',
-        date: '2024-03-15',
-        businessType: 'dividend',
-        payee: { zh: '中国银行股份有限公司托管专户', en: 'Bank of China Custody Account' },
-        payeeBank: { zh: '中国银行股份有限公司北京市分行', en: 'Bank of China Beijing Branch' },
-        account: '341256789012345',
-        amount: 18500000.00,
-        amountCN: { zh: '壹仟捌佰伍拾万元整', en: 'Eighteen Million Five Hundred Thousand Yuan' },
-        purpose: 'DIV20240315003',
-        deadline: '2024-03-17',
-        subscriptionPrice: null,
-        subscriptionQty: null,
-        subscriptionAmount: null,
-        confidence: 98.1,
+        filename: '泰康网下IPO划款指令601336.jpg',
+        businessType: 'ipo_subscription',
+        businessTypeName: { zh: '网下IPO申购划款', en: 'Offline IPO Subscription' },
+        confidence: 97.5,
         status: 'completed',
-        sortedTo: 'dividend'
+        recognizedFields: {
+            fundName: { zh: '泰康策略优选混合', en: 'Taikang Strategy Select Mixed' },
+            instructionNo: '2024年112号',
+            subscriptionPrice: '15.80',
+            subscriptionQty: '8,000,000',
+            amount: '126,400,000.00',
+            amountCN: { zh: '壹亿贰仟陆佰肆拾万元整', en: 'One Hundred Twenty-Six Million Four Hundred Thousand Yuan' },
+            payee: { zh: '中国证券登记结算有限责任公司上海分公司（网下发行专户）', en: 'CSDC Shanghai Branch (Offline IPO Account)' },
+            payeeBank: { zh: '中国建设银行股份有限公司上海市分行营业部', en: 'CCB Shanghai Branch Business Dept' },
+            account: '31001550400050015290',
+            purpose: 'D890775821601336',
+            deadline: '2024-03-18',
+        }
     },
     {
         id: 'INS-2024-004',
-        fundName: { zh: '易方达蓝筹精选', en: 'E Fund Blue Chip Select' },
-        instructionNo: '2024年089号',
-        date: '2024-03-15',
-        businessType: 'transfer',
-        payee: { zh: '中国工商银行股份有限公司资金托管账户', en: 'ICBC Fund Custody Account' },
-        payeeBank: { zh: '中国工商银行股份有限公司总行营业部', en: 'ICBC Head Office Business Dept' },
-        account: '0200049109200364177',
-        amount: 350000000.00,
-        amountCN: { zh: '叁亿伍仟万元整', en: 'Three Hundred Fifty Million Yuan' },
-        purpose: 'TRF20240315004',
-        deadline: '2024-03-15',
-        subscriptionPrice: null,
-        subscriptionQty: null,
-        subscriptionAmount: null,
-        confidence: 92.5,
-        status: 'sorted',
-        sortedTo: 'transfer'
-    }
+        filename: '银行间成交单2.tif',
+        businessType: 'interbank_settlement',
+        businessTypeName: { zh: '银行间成交单', en: 'Interbank Settlement' },
+        confidence: 92.1,
+        status: 'completed',
+        recognizedFields: {
+            direction: { zh: '买入', en: 'Buy' },
+            product: { zh: '24国开05', en: '24 CDB 05' },
+            amount: '50,230,000.00',
+            price: '100.46',
+            quantity: '500,000',
+            settlementDate: '2024-03-15',
+            counterparty: { zh: '中国工商银行股份有限公司', en: 'ICBC Co., Ltd.' },
+            deliveryMethod: { zh: '券款对付(DVP)', en: 'Delivery vs Payment (DVP)' },
+        }
+    },
+    {
+        id: 'INS-2024-005',
+        filename: '银行间成交单3.tif',
+        businessType: 'interbank_settlement',
+        businessTypeName: { zh: '银行间成交单', en: 'Interbank Settlement' },
+        confidence: 93.8,
+        status: 'completed',
+        recognizedFields: {
+            direction: { zh: '卖出', en: 'Sell' },
+            product: { zh: '23进出02', en: '23 EXIM 02' },
+            amount: '30,150,000.00',
+            price: '99.85',
+            quantity: '302,000',
+            settlementDate: '2024-03-16',
+            counterparty: { zh: '中国农业银行股份有限公司', en: 'ABC Co., Ltd.' },
+            deliveryMethod: { zh: '券款对付(DVP)', en: 'Delivery vs Payment (DVP)' },
+        }
+    },
 ];
+
 
 // Monitor data for peak payment monitoring
 export const monitorData = {

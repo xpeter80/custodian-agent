@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Upload,
@@ -13,37 +13,147 @@ import {
     Info,
     ChevronRight,
     BarChart3,
-    Layers
+    Layers,
+    FileImage,
+    Sparkles,
+    Tag,
+    Eye,
+    X
 } from 'lucide-react'
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts'
 import StatusBadge from '../components/StatusBadge'
 import MetricCard from '../components/MetricCard'
-import { sampleInstructions, monitorData } from '../data/mockData'
+import { sampleInstructions, instructionTemplates, monitorData } from '../data/mockData'
 
 const typeColors = {
+    ipo_subscription: 'copper',
+    custody_fee: 'blue',
+    interbank_settlement: 'emerald',
+    redemption: 'amber',
+    dividend: 'red',
     subscription: 'copper',
-    redemption: 'blue',
-    dividend: 'emerald',
     transfer: 'amber',
-    settlement: 'red'
+    settlement: 'red',
+}
+
+const typeColorClasses = {
+    ipo_subscription: 'bg-copper-500/10 text-copper-400 border-copper-500/20',
+    custody_fee: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    interbank_settlement: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    redemption: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    dividend: 'bg-red-500/10 text-red-400 border-red-500/20',
 }
 
 export default function InstructionRecognition() {
     const { t, i18n } = useTranslation()
     const lang = i18n.language
     const [activeTab, setActiveTab] = useState('recognition')
+    const [instructions, setInstructions] = useState(sampleInstructions)
     const [selectedInstruction, setSelectedInstruction] = useState(sampleInstructions[0])
-    const [showUpload, setShowUpload] = useState(false)
+    const [uploading, setUploading] = useState(false)
+    const [filterType, setFilterType] = useState('all')
+    const fileInputRef = useRef(null)
 
     const tabs = [
         { key: 'recognition', label: t('instruction.tabRecognition') },
         { key: 'monitor', label: t('instruction.tabMonitor') },
     ]
 
-    const pipelineSteps = ['received', 'recognized', 'sorted', 'processing', 'completed']
-    const statusToStep = { completed: 4, processing: 3, sorted: 2, recognized: 1, received: 0 }
+    // Get all unique business types from instructions
+    const businessTypes = [...new Set(instructions.map(i => i.businessType))]
+
+    // Filter instructions by type
+    const filteredInstructions = filterType === 'all'
+        ? instructions
+        : instructions.filter(i => i.businessType === filterType)
+
+    // Get template for the selected instruction's business type
+    const currentTemplate = selectedInstruction
+        ? instructionTemplates[selectedInstruction.businessType]
+        : null
+
+    // Handle file upload
+    const handleFileUpload = async (e) => {
+        const files = e.target.files
+        if (!files || files.length === 0) return
+
+        setUploading(true)
+
+        for (const file of files) {
+            // Simulate recognition delay
+            await new Promise(resolve => setTimeout(resolve, 800))
+
+            // Try calling backend API first, fall back to local mock
+            try {
+                const apiUrl = window.APP_CONFIG?.apiUrl || '/api'
+                const formData = new FormData()
+                formData.append('file', file)
+                const res = await fetch(`${apiUrl}/instructions/upload`, {
+                    method: 'POST',
+                    body: formData,
+                })
+                if (res.ok) {
+                    const data = await res.json()
+                    if (data.success) {
+                        setInstructions(prev => [data.instruction, ...prev])
+                        setSelectedInstruction(data.instruction)
+                        continue
+                    }
+                }
+            } catch (err) {
+                // Backend not available, use local mock
+            }
+
+            // Local mock recognition
+            const mockInstruction = createMockInstruction(file.name)
+            setInstructions(prev => [mockInstruction, ...prev])
+            setSelectedInstruction(mockInstruction)
+        }
+
+        setUploading(false)
+        if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+
+    // Create mock instruction from filename
+    function createMockInstruction(filename) {
+        let businessType = 'ipo_subscription'
+        if (filename.includes('托管费') || filename.includes('管理费')) {
+            businessType = 'custody_fee'
+        } else if (filename.includes('成交单') || filename.includes('银行间')) {
+            businessType = 'interbank_settlement'
+        } else if (filename.includes('赎回')) {
+            businessType = 'redemption'
+        } else if (filename.includes('分红')) {
+            businessType = 'dividend'
+        }
+
+        const template = instructionTemplates[businessType]
+        const mockFields = {}
+        template.fields.forEach(f => {
+            mockFields[f.key] = lang === 'zh' ? `[${f.label.zh}]` : `[${f.label.en}]`
+        })
+
+        return {
+            id: `INS-${Date.now().toString(36).toUpperCase()}`,
+            filename,
+            businessType,
+            businessTypeName: template.name,
+            confidence: parseFloat((90 + Math.random() * 9).toFixed(1)),
+            status: 'completed',
+            recognizedFields: mockFields,
+        }
+    }
+
+    // Get display value for a field
+    function getFieldValue(value) {
+        if (value === null || value === undefined) return t('instruction.noFieldData')
+        if (typeof value === 'object' && value.zh !== undefined) {
+            return lang === 'zh' ? value.zh : value.en
+        }
+        return String(value)
+    }
 
     return (
         <div className="max-w-7xl mx-auto space-y-6">
@@ -61,8 +171,8 @@ export default function InstructionRecognition() {
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab.key
-                                ? 'bg-copper-600 text-white shadow-lg shadow-copper-900/20'
-                                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                            ? 'bg-copper-600 text-white shadow-lg shadow-copper-900/20'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
                             }`}
                     >
                         {tab.label}
@@ -73,61 +183,114 @@ export default function InstructionRecognition() {
             {/* Tab Content */}
             {activeTab === 'recognition' ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left: Upload + Instruction List */}
+                    {/* Left: Upload + Filter + Instruction List */}
                     <div className="space-y-4">
                         {/* Upload Area */}
                         <div
                             className="glass-card p-6 cursor-pointer group"
-                            onClick={() => setShowUpload(!showUpload)}
+                            onClick={() => fileInputRef.current?.click()}
                             style={{ animation: 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards', animationDelay: '200ms' }}
                         >
-                            <div className="flex flex-col items-center gap-3 py-4 border-2 border-dashed border-white/10 rounded-xl group-hover:border-copper-500/30 transition-all duration-300">
-                                <div className="p-3 rounded-2xl bg-copper-500/10 group-hover:bg-copper-500/20 transition-all duration-300">
-                                    <Upload size={24} className="text-copper-400" />
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".jpg,.jpeg,.png,.tif,.tiff,.pdf"
+                                multiple
+                                className="hidden"
+                                onChange={handleFileUpload}
+                            />
+                            <div className={`flex flex-col items-center gap-3 py-4 border-2 border-dashed rounded-xl transition-all duration-300 ${uploading
+                                    ? 'border-copper-500/50 bg-copper-500/5'
+                                    : 'border-white/10 group-hover:border-copper-500/30'
+                                }`}>
+                                <div className={`p-3 rounded-2xl transition-all duration-300 ${uploading
+                                        ? 'bg-copper-500/20 animate-pulse'
+                                        : 'bg-copper-500/10 group-hover:bg-copper-500/20'
+                                    }`}>
+                                    {uploading ? (
+                                        <Sparkles size={24} className="text-copper-400 animate-spin" />
+                                    ) : (
+                                        <Upload size={24} className="text-copper-400" />
+                                    )}
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-sm text-gray-300">{t('instruction.uploadDesc')}</p>
+                                    <p className="text-sm text-gray-300">
+                                        {uploading ? t('instruction.importing') : t('instruction.uploadDesc')}
+                                    </p>
                                     <p className="text-xs text-gray-600 mt-1">{t('instruction.uploadHint')}</p>
                                 </div>
                             </div>
                         </div>
 
+                        {/* Business Type Filter */}
+                        <div className="flex flex-wrap gap-1.5"
+                            style={{ animation: 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards', animationDelay: '250ms' }}>
+                            <button
+                                onClick={() => setFilterType('all')}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${filterType === 'all'
+                                        ? 'bg-copper-600 text-white'
+                                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                    }`}
+                            >
+                                {lang === 'zh' ? '全部' : 'All'} ({instructions.length})
+                            </button>
+                            {Object.entries(instructionTemplates).map(([key, tmpl]) => {
+                                const count = instructions.filter(i => i.businessType === key).length
+                                if (count === 0) return null
+                                return (
+                                    <button
+                                        key={key}
+                                        onClick={() => setFilterType(key)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${filterType === key
+                                                ? 'bg-copper-600 text-white'
+                                                : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                            }`}
+                                    >
+                                        {lang === 'zh' ? tmpl.name.zh : tmpl.name.en} ({count})
+                                    </button>
+                                )
+                            })}
+                        </div>
+
                         {/* Instruction List */}
-                        <div className="space-y-2">
-                            {sampleInstructions.map((inst, index) => (
+                        <div className="space-y-2 max-h-[calc(100vh-420px)] overflow-y-auto custom-scrollbar pr-1">
+                            {filteredInstructions.map((inst, index) => (
                                 <button
                                     key={inst.id}
                                     onClick={() => setSelectedInstruction(inst)}
                                     className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${selectedInstruction?.id === inst.id
-                                            ? 'bg-gradient-to-br from-copper-500/10 to-transparent border-copper-500/30 shadow-[0_4px_12px_rgba(224,142,85,0.08)]'
-                                            : 'bg-white/5 border-white/5 hover:bg-white/8 hover:border-white/10'
+                                        ? 'bg-gradient-to-br from-copper-500/10 to-transparent border-copper-500/30 shadow-[0_4px_12px_rgba(224,142,85,0.08)]'
+                                        : 'bg-white/5 border-white/5 hover:bg-white/8 hover:border-white/10'
                                         }`}
-                                    style={{ animation: `fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards`, animationDelay: `${300 + index * 80}ms` }}
+                                    style={{ animation: `fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards`, animationDelay: `${300 + index * 60}ms` }}
                                 >
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-xs text-gray-500">{inst.id}</span>
+                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${typeColorClasses[inst.businessType] || 'bg-gray-500/10 text-gray-400 border-gray-500/20'}`}>
+                                            <Tag size={10} />
+                                            {t(`instruction.types.${inst.businessType}`)}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-200 truncate">
+                                        {inst.filename}
+                                    </p>
+                                    <div className="flex items-center justify-between mt-2">
+                                        <span className="text-xs text-gray-500">
+                                            {t('instruction.confidence')}: {inst.confidence}%
+                                        </span>
                                         <StatusBadge
                                             status={inst.status}
                                             label={t(`instruction.steps.${inst.status}`)}
                                         />
-                                    </div>
-                                    <p className="text-sm font-medium text-gray-200 truncate">
-                                        {lang === 'zh' ? inst.fundName.zh : inst.fundName.en}
-                                    </p>
-                                    <div className="flex items-center justify-between mt-2">
-                                        <span className="text-xs text-gray-500">{inst.date}</span>
-                                        <span className="text-xs text-copper-400">
-                                            ¥{inst.amount.toLocaleString()}
-                                        </span>
                                     </div>
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Right: Instruction Detail */}
+                    {/* Right: Template-based Detail View */}
                     <div className="lg:col-span-2 space-y-4">
-                        {selectedInstruction && (
+                        {selectedInstruction && currentTemplate && (
                             <>
                                 {/* Recognition Result Header */}
                                 <div className="glass-card p-6"
@@ -135,13 +298,13 @@ export default function InstructionRecognition() {
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-3">
                                             <div className="p-2 rounded-xl bg-copper-500/10">
-                                                <FileText size={20} className="text-copper-400" />
+                                                <FileImage size={20} className="text-copper-400" />
                                             </div>
                                             <div>
-                                                <h3 className="text-sm font-medium text-white">
-                                                    {lang === 'zh' ? selectedInstruction.fundName.zh : selectedInstruction.fundName.en}
+                                                <h3 className="text-sm font-medium text-white truncate max-w-md">
+                                                    {selectedInstruction.filename}
                                                 </h3>
-                                                <p className="text-xs text-gray-500">{selectedInstruction.instructionNo}</p>
+                                                <p className="text-xs text-gray-500">{selectedInstruction.id}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
@@ -149,83 +312,71 @@ export default function InstructionRecognition() {
                                                 <p className="text-xs text-gray-500">{t('instruction.confidence')}</p>
                                                 <p className="text-lg font-light text-emerald-400">{selectedInstruction.confidence}%</p>
                                             </div>
-                                            <StatusBadge
-                                                status={selectedInstruction.sortedTo}
-                                                label={t(`instruction.types.${selectedInstruction.sortedTo}`)}
-                                                size="md"
-                                            />
                                         </div>
                                     </div>
 
-                                    {/* Pipeline */}
-                                    <div className="mt-6">
-                                        <p className="text-xs text-gray-500 mb-3">{t('instruction.pipeline')}</p>
+                                    {/* Business Type Badge */}
+                                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
                                         <div className="flex items-center gap-2">
-                                            {pipelineSteps.map((step, i) => {
-                                                const currentStep = statusToStep[selectedInstruction.status] || 0
-                                                const isActive = i <= currentStep
-                                                const isCurrent = i === currentStep
-                                                return (
-                                                    <div key={step} className="flex items-center gap-2 flex-1">
-                                                        <div className={`flex items-center gap-2 flex-1 p-2 rounded-lg border transition-all duration-300 ${isActive
-                                                                ? isCurrent
-                                                                    ? 'bg-copper-500/20 border-copper-500/30 animate-pulse-glow'
-                                                                    : 'bg-emerald-500/10 border-emerald-500/20'
-                                                                : 'bg-white/5 border-white/5'
-                                                            }`}>
-                                                            {isActive && !isCurrent ? (
-                                                                <CheckCircle2 size={12} className="text-emerald-400 flex-shrink-0" />
-                                                            ) : isCurrent ? (
-                                                                <Clock size={12} className="text-copper-400 flex-shrink-0" />
-                                                            ) : (
-                                                                <div className="w-3 h-3 rounded-full bg-white/10 flex-shrink-0"></div>
-                                                            )}
-                                                            <span className={`text-[11px] truncate ${isActive ? 'text-gray-200' : 'text-gray-600'}`}>
-                                                                {t(`instruction.steps.${step}`)}
-                                                            </span>
-                                                        </div>
-                                                        {i < pipelineSteps.length - 1 && (
-                                                            <ChevronRight size={12} className={isActive ? 'text-copper-400' : 'text-gray-700'} />
-                                                        )}
-                                                    </div>
-                                                )
-                                            })}
+                                            <Sparkles size={14} className="text-copper-400" />
+                                            <span className="text-xs text-gray-500">{t('instruction.typeRecognized')}</span>
                                         </div>
+                                        <ArrowRight size={14} className="text-gray-600" />
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${typeColorClasses[selectedInstruction.businessType] || ''}`}>
+                                            <Tag size={12} />
+                                            {lang === 'zh'
+                                                ? selectedInstruction.businessTypeName?.zh || t(`instruction.types.${selectedInstruction.businessType}`)
+                                                : selectedInstruction.businessTypeName?.en || t(`instruction.types.${selectedInstruction.businessType}`)
+                                            }
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* Extracted Fields */}
+                                {/* Template View: Recognized Fields */}
                                 <div className="glass-card p-6"
                                     style={{ animation: 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards', animationDelay: '350ms' }}>
-                                    <h3 className="text-sm font-medium text-gray-300 mb-4">{t('instruction.recognized')}</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {[
-                                            { key: 'businessType', value: t(`instruction.types.${selectedInstruction.businessType}`) },
-                                            { key: 'amount', value: `¥ ${selectedInstruction.amount.toLocaleString()}` },
-                                            { key: 'payee', value: lang === 'zh' ? selectedInstruction.payee.zh : selectedInstruction.payee.en },
-                                            { key: 'payeeBank', value: lang === 'zh' ? selectedInstruction.payeeBank.zh : selectedInstruction.payeeBank.en },
-                                            { key: 'account', value: selectedInstruction.account },
-                                            { key: 'amountCN', value: lang === 'zh' ? selectedInstruction.amountCN.zh : selectedInstruction.amountCN.en },
-                                            { key: 'purpose', value: selectedInstruction.purpose },
-                                            { key: 'deadline', value: selectedInstruction.deadline },
-                                        ].map((field, i) => (
-                                            <div key={field.key} className="flex flex-col gap-1 p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                                                <span className="text-[11px] text-gray-500 uppercase tracking-wider">{t(`instruction.${field.key}`)}</span>
-                                                <span className="text-sm text-gray-200 break-all">{field.value}</span>
-                                            </div>
-                                        ))}
-                                        {selectedInstruction.subscriptionPrice && (
-                                            <>
-                                                <div className="flex flex-col gap-1 p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                                                    <span className="text-[11px] text-gray-500 uppercase tracking-wider">{t('instruction.subscriptionPrice')}</span>
-                                                    <span className="text-sm text-gray-200">¥ {selectedInstruction.subscriptionPrice}</span>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-2">
+                                            <Eye size={16} className="text-copper-400" />
+                                            <h3 className="text-sm font-medium text-gray-300">
+                                                {t('instruction.templateView')}
+                                            </h3>
+                                        </div>
+                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border ${typeColorClasses[selectedInstruction.businessType] || ''}`}>
+                                            {lang === 'zh' ? currentTemplate.name.zh : currentTemplate.name.en}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {currentTemplate.fields.map((field, i) => {
+                                            const rawValue = selectedInstruction.recognizedFields?.[field.key]
+                                            const displayValue = getFieldValue(rawValue)
+                                            const fieldLabel = lang === 'zh' ? field.label.zh : field.label.en
+
+                                            return (
+                                                <div
+                                                    key={field.key}
+                                                    className="flex flex-col gap-1.5 p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all duration-200"
+                                                    style={{ animation: `fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards`, animationDelay: `${400 + i * 40}ms` }}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[11px] text-gray-500 uppercase tracking-wider">
+                                                            {fieldLabel}
+                                                        </span>
+                                                        {field.type === 'currency' && (
+                                                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">¥</span>
+                                                        )}
+                                                        {field.type === 'date' && (
+                                                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">📅</span>
+                                                        )}
+                                                    </div>
+                                                    <span className={`text-sm break-all ${rawValue ? 'text-gray-200' : 'text-gray-600 italic'
+                                                        }`}>
+                                                        {field.type === 'currency' && rawValue ? `¥ ${displayValue}` : displayValue}
+                                                    </span>
                                                 </div>
-                                                <div className="flex flex-col gap-1 p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                                                    <span className="text-[11px] text-gray-500 uppercase tracking-wider">{t('instruction.subscriptionQty')}</span>
-                                                    <span className="text-sm text-gray-200">{selectedInstruction.subscriptionQty?.toLocaleString()}</span>
-                                                </div>
-                                            </>
-                                        )}
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             </>
