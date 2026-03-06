@@ -313,50 +313,59 @@ export const reconciliationData = {
 
 // ===== Module 4: Investment Supervision =====
 export const supervisionData = {
+    contractMeta: {
+        name: { zh: '太平资产乾坤9号资管产品托管合同', en: 'Taiping Asset Qiankun No.9 Custody Contract' },
+        date: '2016-03-01',
+        parties: {
+            manager: { zh: '太平资产管理有限公司', en: 'Taiping Asset Management Co., Ltd.' },
+            custodian: { zh: '中国建设银行股份有限公司', en: 'China Construction Bank Corporation' }
+        },
+        pages: 39,
+        productType: { zh: '资管产品', en: 'Asset Management Product' }
+    },
     contractText: {
-        zh: `第二十一条 投资范围
-本基金的投资范围为具有良好流动性的金融工具，包括国内依法发行上市的股票（含中小板、创业板及其他经中国证监会核准上市的股票）、债券（包括国债、央行票据、金融债券、企业债券、公司债券、中期票据、短期融资券、超短期融资券、次级债券、政府支持机构债、政府支持债券、地方政府债、可转换债券、可交换债券及其他中国证监会允许基金投资的债券）、资产支持证券、债券回购、银行存款、同业存单、货币市场工具、权证及法律法规或中国证监会允许基金投资的其他金融工具。
-
-第二十二条 投资比例限制
-（1）本基金股票投资占基金资产的比例范围为60%-95%；
-（2）本基金每个交易日日终在扣除股指期货合约需缴纳的交易保证金后，持有的现金或到期日在一年以内的政府债券的比例合计不低于基金资产净值的5%；
-（3）本基金持有一家公司发行的证券，其市值不超过基金资产净值的10%；
-（4）本基金管理人管理的全部基金持有一家公司发行的证券，不超过该证券的10%；
-（5）本基金持有的全部权证，其市值不得超过基金资产净值的3%；
-（6）本基金在任何交易日买入权证的总金额，不得超过上一交易日基金资产净值的0.5%。`,
-        en: `Article 21 - Investment Scope
-The fund's investment scope covers financial instruments with good liquidity, including domestically listed stocks (including SME board, ChiNext board and other CSRC-approved stocks), bonds (including treasury bonds, central bank bills, financial bonds, corporate bonds, medium-term notes, commercial paper, subordinated bonds, local government bonds, convertible bonds, exchangeable bonds and other CSRC-approved bonds), ABS, repo, bank deposits, NCDs, money market instruments, warrants and other eligible instruments.
-
-Article 22 - Investment Ratio Limits
-(1) Stock investments shall range from 60% to 95% of fund assets;
-(2) Cash or government bonds maturing within one year shall not be less than 5% of NAV after deducting futures margin;
-(3) Securities of a single company shall not exceed 10% of NAV;
-(4) All funds under this manager holding a single company's securities shall not exceed 10% of those securities;
-(5) Total warrants shall not exceed 3% of NAV;
-(6) Daily warrant purchases shall not exceed 0.5% of previous day's NAV.`
+        zh: `六、投资政策及变更\n\n(一)投资目标\n在具有一定安全边际和保证产品流动性的前提下，追求净值的较快增长。\n\n(二)投资范围\n本产品的投资范围为符合法律法规和保监会认可的投资品种（工具），包括但不限于银行存款、股票、债券、证券投资基金、央行票据、短期融资券、资产支持证券、金融衍生产品以及中国保监会认可的其他投资品种等。\n\n(三)投资比例\n本产品投资应当符合下列规定：\n（1）投资于权益类资产的比例不超过该产品资产总值的80%；\n（2）投资于不动产类资产和其他金融资产的比例不超过该产品资产总值的30%；\n（3）流动性资产（银行活期存款、货币市场基金和到期日在一年以内的政府债券）配置比例不低于该产品资产总值的5%；\n（4）投资于单一固定收益类资产的比例不超过产品资产总值的5%。\n\n(四)投资限制\n除法律法规和保监会另有规定外，本产品投资应当符合下列规定：\n（1）不得将产品资产投资于所管理的其他产品的资产；\n（2）同一资产管理人管理的全部组合投资产品持有一家公司发行的证券，不得超过该证券的10%；\n（3）持有一家公司发行的股票的市值不超过该产品资产净值的10%；\n（4）持有一家公司发行的债券的市值不超过该产品资产净值的20%；\n（5）不得进行融资融券交易；\n（6）不得将产品资产投资于关联方的股票或债券；\n（7）不得利用产品资产为他人或其他产品提供担保或融资。\n\n八、产品费用与税收\n\n(一)管理费\n资产管理人按前一日委托资产净值1.00%的年费率逐日计提管理费，按月支付。\n\n(二)托管费\n资产托管人按前一日委托资产净值0.20%的年费率逐日计提托管费，按月支付。`,
+        en: `VI. Investment Policy and Changes\n\n(I) Investment Objective\nTo pursue rapid growth of net value while maintaining a certain margin of safety and ensuring product liquidity.\n\n(II) Investment Scope\nThe product's investment scope covers instruments recognized by laws, regulations, and CIRC, including but not limited to bank deposits, stocks, bonds, securities investment funds, central bank bills, commercial paper, ABS, financial derivatives, and other CIRC-approved instruments.\n\n(III) Investment Ratios\nProduct investments shall comply with the following:\n(1) Equity asset investment shall not exceed 80% of total product assets;\n(2) Real estate and other financial assets shall not exceed 30% of total product assets;\n(3) Liquid assets (demand deposits, MMFs, and govt bonds maturing within 1 year) shall not be less than 5% of total product assets;\n(4) Single fixed-income instrument shall not exceed 5% of total product assets.\n\n(IV) Investment Restrictions\nUnless otherwise provided by laws and CIRC:\n(1) Product assets shall not be invested in other products managed by the same manager;\n(2) All portfolios under the same manager holding a single company's securities shall not exceed 10% of those securities;\n(3) Holding a single company's stock shall not exceed 10% of product NAV;\n(4) Holding a single company's bond shall not exceed 20% of product NAV;\n(5) Margin trading and securities lending are prohibited;\n(6) Product assets shall not be invested in stocks or bonds of related parties;\n(7) Product assets shall not be used to provide guarantees or financing for others.\n\nVIII. Product Fees and Taxes\n\n(I) Management Fee\nManagement fee is accrued daily at 1.00% annual rate based on previous day's NAV, paid monthly.\n\n(II) Custody Fee\nCustody fee is accrued daily at 0.20% annual rate based on previous day's NAV, paid monthly.`
     },
     extractedRules: [
-        { id: 'R-001', type: 'ratio', content: { zh: '股票投资占基金资产的比例范围为60%-95%', en: 'Stock investment ratio: 60%-95% of fund assets' }, clause: { zh: '第二十二条第(1)款', en: 'Art. 22(1)' }, level: 'contract', minValue: 60, maxValue: 95, unit: '%' },
-        { id: 'R-002', type: 'liquidity', content: { zh: '现金或一年内政府债券不低于基金资产净值的5%', en: 'Cash or govt bonds ≤1yr maturity ≥ 5% NAV' }, clause: { zh: '第二十二条第(2)款', en: 'Art. 22(2)' }, level: 'regulatory', minValue: 5, maxValue: null, unit: '%' },
-        { id: 'R-003', type: 'concentration', content: { zh: '持有一家公司证券市值不超过基金资产净值的10%', en: 'Single company holdings ≤ 10% NAV' }, clause: { zh: '第二十二条第(3)款', en: 'Art. 22(3)' }, level: 'regulatory', minValue: null, maxValue: 10, unit: '%' },
-        { id: 'R-004', type: 'concentration', content: { zh: '全部基金持有一家公司证券不超过该证券的10%', en: 'All funds holding single company securities ≤ 10%' }, clause: { zh: '第二十二条第(4)款', en: 'Art. 22(4)' }, level: 'regulatory', minValue: null, maxValue: 10, unit: '%' },
-        { id: 'R-005', type: 'ratio', content: { zh: '全部权证市值不超过基金资产净值的3%', en: 'Total warrants ≤ 3% NAV' }, clause: { zh: '第二十二条第(5)款', en: 'Art. 22(5)' }, level: 'contract', minValue: null, maxValue: 3, unit: '%' },
-        { id: 'R-006', type: 'ratio', content: { zh: '买入权证总金额不超过上一交易日基金资产净值的0.5%', en: 'Daily warrant purchases ≤ 0.5% prev-day NAV' }, clause: { zh: '第二十二条第(6)款', en: 'Art. 22(6)' }, level: 'contract', minValue: null, maxValue: 0.5, unit: '%' }
+        { id: 'R-001', type: 'ratio', content: { zh: '投资于权益类资产的比例不超过该产品资产总值的80%', en: 'Equity asset investment ≤ 80% of total product assets' }, clause: { zh: '第六条第(三)款第(1)项', en: 'Art.6(III)(1)' }, level: 'regulatory', minValue: null, maxValue: 80, unit: '%' },
+        { id: 'R-002', type: 'ratio', content: { zh: '投资于不动产类资产和其他金融资产的比例不超过该产品资产总值的30%', en: 'Real estate & other financial assets ≤ 30% of total assets' }, clause: { zh: '第六条第(三)款第(2)项', en: 'Art.6(III)(2)' }, level: 'regulatory', minValue: null, maxValue: 30, unit: '%' },
+        { id: 'R-003', type: 'liquidity', content: { zh: '流动性资产配置比例不低于该产品资产总值的5%', en: 'Liquid assets ≥ 5% of total product assets' }, clause: { zh: '第六条第(三)款第(3)项', en: 'Art.6(III)(3)' }, level: 'regulatory', minValue: 5, maxValue: null, unit: '%' },
+        { id: 'R-004', type: 'concentration', content: { zh: '投资于单一固定收益类资产的比例不超过产品资产总值的5%', en: 'Single fixed-income instrument ≤ 5% of total assets' }, clause: { zh: '第六条第(三)款第(4)项', en: 'Art.6(III)(4)' }, level: 'contract', minValue: null, maxValue: 5, unit: '%' },
+        { id: 'R-005', type: 'concentration', content: { zh: '同一管理人全部组合持有一家公司证券不超过该证券的10%', en: 'All portfolios under same manager holding single company securities ≤ 10%' }, clause: { zh: '第六条第(四)款第(2)项', en: 'Art.6(IV)(2)' }, level: 'regulatory', minValue: null, maxValue: 10, unit: '%' },
+        { id: 'R-006', type: 'concentration', content: { zh: '持有一家公司股票市值不超过产品资产净值的10%', en: 'Single company stock holding ≤ 10% of product NAV' }, clause: { zh: '第六条第(四)款第(3)项', en: 'Art.6(IV)(3)' }, level: 'regulatory', minValue: null, maxValue: 10, unit: '%' },
+        { id: 'R-007', type: 'concentration', content: { zh: '持有一家公司债券市值不超过产品资产净值的20%', en: 'Single company bond holding ≤ 20% of product NAV' }, clause: { zh: '第六条第(四)款第(4)项', en: 'Art.6(IV)(4)' }, level: 'contract', minValue: null, maxValue: 20, unit: '%' },
+        { id: 'R-008', type: 'prohibited', content: { zh: '不得进行融资融券交易', en: 'Margin trading and securities lending are prohibited' }, clause: { zh: '第六条第(四)款第(5)项', en: 'Art.6(IV)(5)' }, level: 'regulatory', minValue: null, maxValue: null, unit: null },
+        { id: 'R-009', type: 'prohibited', content: { zh: '不得将产品资产投资于关联方的股票或债券', en: 'No investment in related party stocks or bonds' }, clause: { zh: '第六条第(四)款第(6)项', en: 'Art.6(IV)(6)' }, level: 'regulatory', minValue: null, maxValue: null, unit: null },
+        { id: 'R-010', type: 'prohibited', content: { zh: '不得利用产品资产为他人或其他产品提供担保或融资', en: 'No guarantees or financing for others using product assets' }, clause: { zh: '第六条第(四)款第(7)项', en: 'Art.6(IV)(7)' }, level: 'contract', minValue: null, maxValue: null, unit: null },
+        { id: 'R-011', type: 'ratio', content: { zh: '管理费按前一日委托资产净值1.00%的年费率计提', en: 'Management fee at 1.00% annual rate based on previous day NAV' }, clause: { zh: '第八条第(一)款', en: 'Art.8(I)' }, level: 'contract', minValue: null, maxValue: 1.0, unit: '% p.a.' },
+        { id: 'R-012', type: 'ratio', content: { zh: '托管费按前一日委托资产净值0.20%的年费率计提', en: 'Custody fee at 0.20% annual rate based on previous day NAV' }, clause: { zh: '第八条第(二)款', en: 'Art.8(II)' }, level: 'contract', minValue: null, maxValue: 0.2, unit: '% p.a.' },
     ],
     indicators: [
-        { name: { zh: '股票仓位比例', en: 'Stock Position Ratio' }, threshold: '60%-95%', currentValue: 82.3, status: 'compliant' },
-        { name: { zh: '现金及短期国债比例', en: 'Cash & Short-term Govt Bond Ratio' }, threshold: '≥5%', currentValue: 6.8, status: 'compliant' },
-        { name: { zh: '单一公司持仓集中度', en: 'Single Company Concentration' }, threshold: '≤10%', currentValue: 9.2, status: 'nearLimit' },
-        { name: { zh: '权证市值占比', en: 'Warrant Value Ratio' }, threshold: '≤3%', currentValue: 0.8, status: 'compliant' },
-        { name: { zh: '权证日买入限额', en: 'Daily Warrant Purchase Limit' }, threshold: '≤0.5%', currentValue: 0.15, status: 'compliant' },
-        { name: { zh: '全部基金持单一公司比例', en: 'All Funds Single Company Ratio' }, threshold: '≤10%', currentValue: 11.2, status: 'breached' }
+        { name: { zh: '权益类资产比例', en: 'Equity Asset Ratio' }, threshold: '≤80%', currentValue: 62.5, status: 'compliant', ruleId: 'R-001' },
+        { name: { zh: '不动产及其他金融资产比例', en: 'Real Estate & Other Financial Ratio' }, threshold: '≤30%', currentValue: 8.3, status: 'compliant', ruleId: 'R-002' },
+        { name: { zh: '流动性资产比例', en: 'Liquid Asset Ratio' }, threshold: '≥5%', currentValue: 5.2, status: 'nearLimit', ruleId: 'R-003' },
+        { name: { zh: '单一固收持仓集中度', en: 'Single Fixed-Income Concentration' }, threshold: '≤5%', currentValue: 4.1, status: 'compliant', ruleId: 'R-004' },
+        { name: { zh: '全部组合持单一公司证券比例', en: 'All Portfolios Single Company Ratio' }, threshold: '≤10%', currentValue: 11.2, status: 'breached', ruleId: 'R-005' },
+        { name: { zh: '单一公司股票持仓集中度', en: 'Single Company Stock Concentration' }, threshold: '≤10%', currentValue: 8.7, status: 'compliant', ruleId: 'R-006' },
+        { name: { zh: '单一公司债券持仓集中度', en: 'Single Company Bond Concentration' }, threshold: '≤20%', currentValue: 18.5, status: 'nearLimit', ruleId: 'R-007' },
+        { name: { zh: '管理费率', en: 'Management Fee Rate' }, threshold: '1.00% p.a.', currentValue: 1.0, status: 'compliant', ruleId: 'R-011' },
+        { name: { zh: '托管费率', en: 'Custody Fee Rate' }, threshold: '0.20% p.a.', currentValue: 0.2, status: 'compliant', ruleId: 'R-012' },
+    ],
+    extractionStages: [
+        { key: 'parsing', duration: 1200 },
+        { key: 'recognizing', duration: 1500 },
+        { key: 'extracting', duration: 2000 },
+        { key: 'generating', duration: 1000 },
     ],
     stats: {
-        totalRules: 42,
-        autoExtracted: 36,
-        manualReview: 6
+        totalRules: 12,
+        autoExtracted: 10,
+        manualReview: 2
     }
 };
+
+
 
 // ===== Dashboard Data =====
 export const dashboardData = {

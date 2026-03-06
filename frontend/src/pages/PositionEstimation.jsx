@@ -156,7 +156,7 @@ export default function PositionEstimation() {
                                         <span className={`text-sm font-medium ${Math.abs(fund.deviation) > 10 ? 'text-red-400' :
                                                 Math.abs(fund.deviation) > 3 ? 'text-amber-400' : 'text-emerald-400'
                                             }`}>
-                                            {fund.deviation > 0 ? '+' : ''}{fund.deviation}%
+                                            {-fund.deviation > 0 ? '+' : ''}{-fund.deviation}%
                                         </span>
                                     </td>
                                     <td className="py-3">

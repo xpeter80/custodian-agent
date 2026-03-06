@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Upload,
@@ -54,11 +54,16 @@ export default function InstructionRecognition() {
     const [selectedInstruction, setSelectedInstruction] = useState(sampleInstructions[0])
     const [uploading, setUploading] = useState(false)
     const [filterType, setFilterType] = useState('all')
+    const [manualStuckSummary, setManualStuckSummary] = useState(null)
+    const [manualStuckItems, setManualStuckItems] = useState([])
+    const [manualStuckFundSummary, setManualStuckFundSummary] = useState([])
+    const [manualStuckLoading, setManualStuckLoading] = useState(false)
     const fileInputRef = useRef(null)
 
     const tabs = [
         { key: 'recognition', label: t('instruction.tabRecognition') },
         { key: 'monitor', label: t('instruction.tabMonitor') },
+        { key: 'manualMonitor', label: t('instruction.tabManualMonitor') },
     ]
 
     // Get all unique business types from instructions
@@ -73,6 +78,44 @@ export default function InstructionRecognition() {
     const currentTemplate = selectedInstruction
         ? instructionTemplates[selectedInstruction.businessType]
         : null
+
+    // Load manual stuck monitoring data when switching to manual monitor tab
+    useEffect(() => {
+        if (activeTab !== 'manualMonitor') return
+
+        let cancelled = false
+        const fetchManualStuck = async () => {
+            setManualStuckLoading(true)
+            try {
+                const apiUrl = window.APP_CONFIG?.apiUrl || '/api'
+                const res = await fetch(`${apiUrl}/monitor/manual-stuck/list`)
+                if (res.ok) {
+                    const data = await res.json()
+                    if (!cancelled) {
+                        setManualStuckSummary(data.summary || null)
+                        setManualStuckFundSummary(Array.isArray(data.fundSummary) ? data.fundSummary : [])
+                        setManualStuckItems(Array.isArray(data.items) ? data.items : [])
+                    }
+                }
+            } catch (e) {
+                if (!cancelled) {
+                    setManualStuckSummary(null)
+                    setManualStuckFundSummary([])
+                    setManualStuckItems([])
+                }
+            } finally {
+                if (!cancelled) {
+                    setManualStuckLoading(false)
+                }
+            }
+        }
+
+        fetchManualStuck()
+
+        return () => {
+            cancelled = true
+        }
+    }, [activeTab])
 
     // Handle file upload
     const handleFileUpload = async (e) => {
@@ -383,8 +426,8 @@ export default function InstructionRecognition() {
                         )}
                     </div>
                 </div>
-            ) : (
-                /* Monitor Tab */
+            ) : activeTab === 'monitor' ? (
+                /* Peak Payment Monitor Tab */
                 <div className="space-y-6">
                     {/* Monitor Metrics */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -420,6 +463,104 @@ export default function InstructionRecognition() {
                             color="amber"
                         />
                     </div>
+
+                    {/* Manual stuck instruction monitor moved to dedicated tab */}
+                    {false && (
+                    <div className="glass-card p-6"
+                        style={{ animation: 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards', animationDelay: '260ms' }}>
+                        <div className="flex items-start justify-between mb-4 gap-4">
+                            <div>
+                                <h3 className="text-sm font-medium text-gray-300">
+                                    {t('instruction.monitor.manualStuckTitle')}
+                                </h3>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    {t('instruction.monitor.manualStuckSubtitle')}
+                                </p>
+                            </div>
+                            {manualStuckSummary && (
+                                <div className="flex flex-col items-end gap-1 text-xs">
+                                    <span className="text-gray-500">{t('instruction.monitor.manualStuckSummary')}</span>
+                                    <div className="flex gap-1.5">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                            <AlertTriangle size={12} />
+                                            {manualStuckSummary.warningCount}
+                                        </span>
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+                                            <AlertTriangle size={12} />
+                                            {manualStuckSummary.criticalCount}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {manualStuckLoading ? (
+                            <p className="text-xs text-gray-500">{t('common.loading')}</p>
+                        ) : (
+                            <>
+                                {manualStuckItems.filter(i => i.alertLevel !== 'none').length === 0 ? (
+                                    <p className="text-xs text-gray-600">
+                                        {t('instruction.monitor.manualStuckNoData')}
+                                    </p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {manualStuckItems
+                                            .filter(i => i.alertLevel !== 'none')
+                                            .sort((a, b) => b.stuckMinutes - a.stuckMinutes)
+                                            .map(item => {
+                                                const level = item.alertLevel
+                                                const isCritical = level === 'critical'
+                                                const badgeClass = isCritical
+                                                    ? 'bg-red-500/10 text-red-400 border-red-500/30'
+                                                    : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                                                const statusLabel = (() => {
+                                                    if (item.status === 'MANUAL_REVIEW') {
+                                                        return t('instruction.monitor.statusManualReview')
+                                                    }
+                                                    if (item.status === 'PENDING_PAY') {
+                                                        return t('instruction.monitor.statusPendingPay')
+                                                    }
+                                                    return item.status
+                                                })()
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                                                    >
+                                                        <div className={`p-2 rounded-lg flex-shrink-0 ${badgeClass}`}>
+                                                            <AlertTriangle size={14} />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <p className="text-sm text-gray-200 truncate">
+                                                                    {item.id} · {item.fundName}
+                                                                </p>
+                                                                <span className="text-xs text-gray-500 flex-shrink-0">
+                                                                    ¥ {item.amount.toLocaleString()}
+                                                                </span>
+                                                            </div>
+                                                            <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                                                                <span>{statusLabel}</span>
+                                                                <span className="inline-flex items-center gap-1">
+                                                                    <Clock size={12} />
+                                                                    {t('instruction.monitor.stuckMinutes')}: {item.stuckMinutes}{t('instruction.monitor.minutes')}
+                                                                </span>
+                                                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border ${badgeClass}`}>
+                                                                    {isCritical
+                                                                        ? t('instruction.monitor.manualStuckCritical')
+                                                                        : t('instruction.monitor.manualStuckWarning')}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                    )}
 
                     {/* Throughput Chart */}
                     <div className="glass-card p-6"
@@ -474,6 +615,146 @@ export default function InstructionRecognition() {
                                 )
                             })}
                         </div>
+                    </div>
+                </div>
+            ) : (
+                /* Manual pending instruction monitor Tab */
+                <div className="space-y-6">
+                    <div className="glass-card p-6"
+                        style={{ animation: 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards', animationDelay: '160ms' }}>
+                        <div className="flex items-start justify-between mb-4 gap-4">
+                            <div>
+                                <h3 className="text-sm font-medium text-gray-300">
+                                    {t('instruction.monitor.manualStuckTitle')}
+                                </h3>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    {t('instruction.monitor.manualStuckSubtitle')}
+                                </p>
+                            </div>
+                            {manualStuckSummary && (
+                                <div className="flex flex-col items-end gap-1 text-xs">
+                                    <span className="text-gray-500">{t('instruction.monitor.manualStuckSummary')}</span>
+                                    <div className="flex gap-1.5">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                            <AlertTriangle size={12} />
+                                            {manualStuckSummary.warningCount}
+                                        </span>
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border-red-500/20">
+                                            <AlertTriangle size={12} />
+                                            {manualStuckSummary.criticalCount}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {manualStuckLoading ? (
+                            <p className="text-xs text-gray-500">{t('common.loading')}</p>
+                        ) : manualStuckFundSummary.length === 0 ? (
+                            <p className="text-xs text-gray-600">
+                                {t('instruction.monitor.manualStuckNoData')}
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                {/* Fund-level summary cards */}
+                                <div className="space-y-3">
+                                    {manualStuckFundSummary.map((fund, index) => (
+                                        <div
+                                            key={fund.fundName}
+                                            className="p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                                            style={{ animation: `fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards`, animationDelay: `${220 + index * 60}ms` }}
+                                        >
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm text-gray-200 truncate">
+                                                        {fund.fundName}
+                                                    </span>
+                                                    <span className="text-[11px] text-gray-500 mt-0.5">
+                                                        {fund.instructionCount}{lang === 'zh' ? ' 笔人工滞留指令' : ' pending instructions'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-1 text-[11px] text-gray-500 flex-shrink-0">
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                                        <AlertTriangle size={11} />
+                                                        {fund.warningCount}
+                                                    </span>
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border-red-500/20">
+                                                        <AlertTriangle size={11} />
+                                                        {fund.criticalCount}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Clock size={11} />
+                                                    {t('instruction.monitor.stuckMinutes')}: {fund.maxStuckMinutes}{t('instruction.monitor.minutes')}
+                                                    <span className="mx-1 text-gray-600">/</span>
+                                                    avg {fund.avgStuckMinutes}{t('instruction.monitor.minutes')}
+                                                </span>
+                                                <span>
+                                                    ¥ {fund.totalAmount.toLocaleString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Instruction-level list */}
+                                <div className="space-y-3">
+                                    {manualStuckItems
+                                        .filter(i => i.alertLevel !== 'none')
+                                        .sort((a, b) => b.stuckMinutes - a.stuckMinutes)
+                                        .map(item => {
+                                            const level = item.alertLevel
+                                            const isCritical = level === 'critical'
+                                            const badgeClass = isCritical
+                                                ? 'bg-red-500/10 text-red-400 border-red-500/30'
+                                                : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                                            const statusLabel = (() => {
+                                                if (item.status === 'MANUAL_REVIEW') {
+                                                    return t('instruction.monitor.statusManualReview')
+                                                }
+                                                if (item.status === 'PENDING_PAY') {
+                                                    return t('instruction.monitor.statusPendingPay')
+                                                }
+                                                return item.status
+                                            })()
+                                            return (
+                                                <div
+                                                    key={item.id}
+                                                    className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                                                >
+                                                    <div className={`p-2 rounded-lg flex-shrink-0 ${badgeClass}`}>
+                                                        <AlertTriangle size={14} />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <p className="text-sm text-gray-200 truncate">
+                                                                {item.id} · {item.fundName}
+                                                            </p>
+                                                            <span className="text-xs text-gray-500 flex-shrink-0">
+                                                                ¥ {item.amount.toLocaleString()}
+                                                            </span>
+                                                        </div>
+                                                        <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                                                            <span>{statusLabel}</span>
+                                                            <span className="inline-flex items-center gap-1">
+                                                                <Clock size={12} />
+                                                                {t('instruction.monitor.stuckMinutes')}: {item.stuckMinutes}{t('instruction.monitor.minutes')}
+                                                            </span>
+                                                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border ${badgeClass}`}>
+                                                                {isCritical
+                                                                    ? t('instruction.monitor.manualStuckCritical')
+                                                                    : t('instruction.monitor.manualStuckWarning')}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

@@ -31,7 +31,7 @@
         "reconciliationRate": "Reconciliation Rate",
         "moduleOverview": "Module Overview",
         "recentActivity": "Recent Activity",
-        "systemStatus": "System Status",
+        "systemStatus": "Agent Status",
         "online": "Online",
         "normal": "Normal",
         "warning": "Warning",
@@ -44,6 +44,7 @@
         "subtitle": "AI-powered identification of custody clearing instruction types with automated sorting",
         "tabRecognition": "Recognition & Sorting",
         "tabMonitor": "Peak Payment Monitor",
+        "tabManualMonitor": "Manual Pending Monitor",
         "uploadTitle": "Upload Clearing Instruction",
         "uploadDesc": "Drag & drop files here or click to upload",
         "uploadHint": "Supports PDF, JPG, PNG formats",
@@ -114,7 +115,17 @@
             "normal": "Normal",
             "totalToday": "Today's Total",
             "perHour": "txn/hr",
-            "pieces": "txn"
+            "pieces": "txn",
+            "manualStuckTitle": "Manual Pending Instruction Monitor",
+            "manualStuckSubtitle": "Monitor instructions stuck in manual review or pending pay status",
+            "manualStuckSummary": "Current manually pending instructions",
+            "manualStuckWarning": "Warning when pending over 20 minutes",
+            "manualStuckCritical": "Critical when pending over 60 minutes",
+            "manualStuckNoData": "No manually pending instructions reaching alert thresholds",
+            "stuckMinutes": "Stuck Time",
+            "minutes": "minutes",
+            "statusManualReview": "Manual Review",
+            "statusPendingPay": "Pending Pay"
         }
     },
     "position": {
@@ -138,8 +149,8 @@
         "fundDetail": "Fund Details",
         "fundCode": "Fund Code",
         "fundNameCol": "Fund Name",
-        "positionAmount": "Position Amount",
-        "predictedAmount": "Predicted Amount",
+        "positionAmount": "Position Estimate",
+        "predictedAmount": "Payable Amount",
         "deviation": "Deviation",
         "status": "Status",
         "unit": "10K CNY"

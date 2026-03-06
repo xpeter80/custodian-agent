@@ -31,7 +31,7 @@
         "reconciliationRate": "对账成功率",
         "moduleOverview": "模块概览",
         "recentActivity": "最近动态",
-        "systemStatus": "系统状态",
+        "systemStatus": "智能体状态",
         "online": "在线",
         "normal": "正常",
         "warning": "预警",
@@ -44,6 +44,7 @@
         "subtitle": "智能识别托管清算指令业务类型，自动化分拣匹配处理流程",
         "tabRecognition": "指令识别与分拣",
         "tabMonitor": "高峰期支付监控",
+        "tabManualMonitor": "人工滞留指令监控",
         "uploadTitle": "上传清算指令",
         "uploadDesc": "拖拽文件到此处或点击上传",
         "uploadHint": "支持 PDF、JPG、PNG 格式",
@@ -114,7 +115,17 @@
             "normal": "正常运行",
             "totalToday": "今日总量",
             "perHour": "笔/小时",
-            "pieces": "笔"
+            "pieces": "笔",
+            "manualStuckTitle": "人工滞留指令监控",
+            "manualStuckSubtitle": "对处于人工审核、待支付等状态的指令进行滞留时长监控",
+            "manualStuckSummary": "当前人工滞留指令",
+            "manualStuckWarning": "滞留超过20分钟预警",
+            "manualStuckCritical": "滞留超过1小时严重告警",
+            "manualStuckNoData": "当前暂无达到预警阈值的人工滞留指令",
+            "stuckMinutes": "滞留时长",
+            "minutes": "分钟",
+            "statusManualReview": "人工审核中",
+            "statusPendingPay": "待支付"
         }
     },
     "position": {
@@ -138,8 +149,8 @@
         "fundDetail": "基金明细",
         "fundCode": "基金代码",
         "fundNameCol": "基金名称",
-        "positionAmount": "头寸金额",
-        "predictedAmount": "预估金额",
+        "positionAmount": "头寸预估",
+        "predictedAmount": "应付金额",
         "deviation": "偏差",
         "status": "状态",
         "unit": "万元"
